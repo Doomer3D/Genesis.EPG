@@ -6,31 +6,41 @@ namespace Genesis.EPG.Model
     /// дескриптор сущности
     /// </summary>
     [System.Diagnostics.DebuggerDisplay("[{Name,nq}] {Description,ns}")]
-    public class EntityInfo : IBaseEntity
+    public class EntityInfo : IBaseEntity, ITableEntity
     {
         /// <summary>
-        /// Идентификатор сущности
+        /// идентификатор сущности
         /// </summary>
-        public string ID { get; set; }
+        public int ID { get; set; }
 
         /// <summary>
-        /// Наименование сущности
+        /// наименование сущности
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Наименование схемы
+        /// наименование схемы
         /// </summary>
         public string SchemaName { get; set; }
 
         /// <summary>
-        /// Наименование таблицы
+        /// наименование таблицы
         /// </summary>
         public string TableName { get; set; }
 
         /// <summary>
-        /// Описание сущности
+        /// описание сущности
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// указывает, что таблица существует в базе
+        /// </summary>
+        public bool IsTableExists { get; set; }
+
+        /// <summary>
+        /// полное наименование таблицы
+        /// </summary>
+        public string FullTableName => $"{SchemaName}.{TableName}";
     }
 }

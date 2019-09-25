@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Newtonsoft.Json.Linq;
+
 using CONNECTION = Npgsql.NpgsqlConnection;
 using COMMAND = Npgsql.NpgsqlCommand;
 using PARAMETER = Npgsql.NpgsqlParameter;
@@ -147,6 +149,20 @@ public static class ConnectorExtensions
     }
 
     #endregion
+
+    public static JObject MergeJson(this READER reader, int ordinal, JObject target)
+    {
+        if (!reader.IsDBNull(ordinal))
+        {
+            var json = JObject.Parse(reader.GetString(ordinal));
+            target.Merge(json);
+            return json;
+        }
+        else
+        {
+            return default;
+        }
+    }
 
     public static bool GetInt16Boolean(this READER reader, int ordinal) => reader.IsDBNull(ordinal) ? default : reader.GetInt16(ordinal) == 1;
 

@@ -21,11 +21,11 @@ namespace Genesis.EPG
         /// <summary>
         /// имя схемы метаданных
         /// </summary>
-        public string MetadataSchemaName { get; set; }
+        public string MetadataSchemaName { get; set; } = "meta";
 
         /// <summary>
         /// имя схемы данных
         /// </summary>
-        public string DataSchemaName { get; set; }
+        public string DataSchemaName { get; set; } = "data";
     }
 }

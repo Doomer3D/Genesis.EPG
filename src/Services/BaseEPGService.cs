@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Text;
+
+using Genesis.EPG.Model;
 
 namespace Genesis.EPG.Services
 {
     /// <summary>
     /// базовый сервис EPG
     /// </summary>
-    public abstract class BaseEPGService 
+    public abstract class BaseEPGService
     {
         /// <summary>
         /// конфигурация EPG
@@ -42,33 +45,82 @@ namespace Genesis.EPG.Services
         }
 
         /// <summary>
-        /// получить коннектор БД по умолчанию
+        /// получить подзапрос на список таблиц
         /// </summary>
         /// <returns></returns>
-        protected Connector GetDefaultConnector()
+        protected string GetTablesSubQuery()
         {
-            lock (_lock)
+            return @"
+with tables as (
+    select ns.nspname as schema_name,
+           c.relname as table_name
+      from pg_catalog.pg_class as c
+ left join pg_catalog.pg_namespace as ns on ns.oid = c.relnamespace
+     where ns.nspname !~ '^pg_'
+       and ns.nspname <> 'information_schema'
+       and c.relkind in ('r','p','v','m')
+)";
+        }
+
+        /// <summary>
+        /// получить join-часть запроса на список таблиц
+        /// </summary>
+        /// <returns></returns>
+        protected string GetTablesSubQueryJoin()
+        {
+            return $@"
+  left join tables as t on t.schema_name = coalesce(e.schema_name, '{_config.DataSchemaName}')
+                       and t.table_name = e.table_name";
+        }
+
+        /// <summary>
+        /// получить информацию о таблице данных
+        /// </summary>
+        /// <param name="info"> дескриптор </param>
+        /// <returns></returns>
+        protected TableInfo GetDataTableName(ITableEntity info)
+        {
+            return new TableInfo
             {
-                if (_defaultConnector == null) _defaultConnector = new Connector();
+                SchemaName = (string.IsNullOrWhiteSpace(info.SchemaName) ? _config.DataSchemaName : info.SchemaName).ToLowerInvariant(),
+                TableName = info.TableName.ToLowerInvariant()
+            };
+        }
 
-                var res = _defaultConnector;
-
-                if (res.Connection == null)
+        /// <summary>
+        /// заключить строку в кавычки
+        /// </summary>
+        /// <param name="value"> значение </param>
+        /// <returns></returns>
+        protected string QuoteString(string value)
+        {
+            if (value == default)
+            {
+                return "'NULL'";
+            }
+            else if (value == string.Empty)
+            {
+                return "''";
+            }
+            else
+            {
+                var sb = new StringBuilder(value.Length + 2);
+                sb.Append('\'');
+                char c;
+                int count = value.Length;
+                for (int i = 0; i < count; i++)
                 {
-                    res.Open();
-                }
-                else
-                {
-                    switch (res.Connection.State)
+                    if ((c = value[i]) == '\'')
                     {
-                        case System.Data.ConnectionState.Broken:
-                        case System.Data.ConnectionState.Closed:
-                            res.Open();
-                            break;
+                        sb.Append("''");
+                    }
+                    else
+                    {
+                        sb.Append(c);
                     }
                 }
-
-                return res;
+                sb.Append('\'');
+                return sb.ToString();
             }
         }
     }

@@ -55,7 +55,7 @@ namespace Genesis.EPG.Controllers
         {
             lock (_lock)
             {
-                if (_defaultConnector == null) _defaultConnector = new Connector();
+                if (_defaultConnector == null) _defaultConnector = new Connector(_config.ConnectionString);
 
                 var res = _defaultConnector;
 
