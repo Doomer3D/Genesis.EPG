@@ -26,6 +26,7 @@ namespace Genesis.EPG
             // регистрируем сервисы
             services.AddScoped<DictionaryService>();
             services.AddScoped<EntityService>();
+            services.AddScoped<FileService>();
 
             services
                 .AddMvc()

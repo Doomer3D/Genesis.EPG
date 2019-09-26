@@ -27,5 +27,10 @@ namespace Genesis.EPG
         /// имя схемы данных
         /// </summary>
         public string DataSchemaName { get; set; } = "data";
+
+        /// <summary>
+        /// путь к папке с файлами для загрузки
+        /// </summary>
+        public string UploadsFilePath { get; set; } = "uploads";
     }
 }
